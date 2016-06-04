@@ -5,6 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.Thread.State;
+import java.util.ArrayDeque;
+import java.util.Date;
+import java.util.Deque;
 
 import org.junit.Test;
 
@@ -71,11 +74,35 @@ public class Testz {
 		task.interrupt();
 	}
 	
-	@Test
+//	@Test
 	public void testSearchFile() throws InterruptedException{
 		FileSearch task = new FileSearch("log.txt","D:/GitWorkSpace/Concurrent/");
 		task.start();
 		task.sleep(4);
 		task.interrupt();
+	}
+	
+//	@Test
+	public void testJoin() throws InterruptedException{
+		DataSourcesLoader dataTask = new DataSourcesLoader();
+		NetWorkConnectionLoader netTask = new NetWorkConnectionLoader();
+		dataTask.start();
+		netTask.start();
+		
+		netTask.join();
+		dataTask.join();
+		System.out.println("main end at: " + new Date());
+	}
+	
+//	@Test
+	public void testDaemon() throws InterruptedException{
+		Deque<Integer> deque = new ArrayDeque<Integer>();
+		for (int i =0;i < 5; i++){
+			WriterTask task1 = new WriterTask(deque);
+			task1.start();
+			Thread.sleep(1);
+		}
+		CleanerTask task2 = new CleanerTask(deque);
+		task2.start();
 	}
 }
