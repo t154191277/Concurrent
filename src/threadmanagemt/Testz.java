@@ -8,6 +8,7 @@ import java.lang.Thread.State;
 import java.util.ArrayDeque;
 import java.util.Date;
 import java.util.Deque;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -97,12 +98,84 @@ public class Testz {
 //	@Test
 	public void testDaemon() throws InterruptedException{
 		Deque<Integer> deque = new ArrayDeque<Integer>();
-		for (int i =0;i < 5; i++){
+//		for (int i =0;i < 5; i++){
 			WriterTask task1 = new WriterTask(deque);
-			task1.start();
-			Thread.sleep(1);
+			Thread t = new Thread(task1);
+			
+			t.start();
+//			this.notify();
+			t.join();
+	}
+	
+//	@Test
+	public void testUnCaughtException() throws InterruptedException{
+		Task task = new Task();
+		Thread t = new Thread(task);
+		t.setUncaughtExceptionHandler(new ExceptionHandler());
+		t.start();
+		t.join();
+	}
+	
+//	@Test
+	public void testUnsafeTask() throws InterruptedException{
+		SafeTask task = new SafeTask();
+		for(int i = 0 ; i < 10 ; i++){
+			Thread t = new Thread(task);
+			t.start();
+			TimeUnit.SECONDS.sleep(2);
 		}
-		CleanerTask task2 = new CleanerTask(deque);
-		task2.start();
+	}
+	
+//	@Test
+	public void testThreadGroup() throws InterruptedException{
+		ThreadGroup group = new ThreadGroup("Searcher");
+		Result result = new Result();
+		SearchTask task = new SearchTask(result);
+		for(int i = 0 ; i < 10 ; i++ ){
+			Thread thread = new Thread(group,task);
+			thread.start();
+			TimeUnit.SECONDS.sleep(1);
+		}
+		
+		System.out.printf("Number of Thread: %d\n",group.activeCount());
+		System.out.printf("Information about the Thread Group\n");
+		group.list();
+		
+		Thread[] threads = new Thread[group.activeCount()];
+		group.enumerate(threads);
+		for (int i = 0; i <group.activeCount(); i++){
+			System.out.printf("Thread %s: %s\n",threads[i].getName(),threads[i].getState());
+		}
+		
+		waitFinish(group);
+		group.interrupt();
+	}
+
+	private void waitFinish(ThreadGroup group) throws InterruptedException {
+		while(group.activeCount() > 9){
+			TimeUnit.SECONDS.sleep(1);
+		}
+	}
+	
+//	@Test
+	public void testThreadGroupUncaugthException() throws InterruptedException{
+		MyThreadGroup group = new MyThreadGroup("GROUP");
+		RTask task = new RTask();
+		for(int i = 0 ;i < 2 ; i++){
+			Thread t = new Thread(group,task);
+			t.start();
+			t.join();
+		}
+	}
+	
+	@Test
+	public void testThreadFactory(){
+		MyThreadFactory factory = new MyThreadFactory("factory");
+		RRTask task = new RRTask();
+		for(int i = 0; i < 10 ;i++){
+			Thread t = factory.newThread(task);
+			t.start();
+		}
+		System.out.printf("Factory stats:\n"); System.out.printf("%s\n",factory.getStats());
 	}
 }
