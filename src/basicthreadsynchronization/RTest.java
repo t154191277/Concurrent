@@ -38,7 +38,7 @@ public class RTest {
 		System.out.printf("Room 2 Vacancies: %d\n",cinema.getVacanciesCinema2());
 	}
 	
-	@Test
+//	@Test
 	public void testWaitAndNotifyAll(){
 		EventStorage storage=new EventStorage();
 		Producer producer=new Producer(storage);
@@ -47,5 +47,93 @@ public class RTest {
 		Thread thread2=new Thread(consumer);
 		thread2.start();
 		thread1.start();
+	}
+	
+//	@Test
+	public void testLock(){
+		PrintQueue printQueue=new PrintQueue();
+		Thread thread[]=new Thread[10];
+		for (int i=0; i<10; i++){
+			thread[i]=new Thread(new Job(printQueue),"Thread "+ i);
+		}
+		for (int i=0; i<10; i++){
+			thread[i].start();
+		}
+	}
+	
+	/**
+	 * junit 不支持多線程測試，因為最後調用的是system.exit(0),jvm結束
+	 * 添加GroboUtils-5-core.jar包之後解決
+	 */
+//	@Test 
+	public void testLock2(){
+		PricesInfo pricesInfo=new PricesInfo();
+		Reader readers[]=new Reader[5];
+		Thread threadsReader[]=new Thread[5];
+		for (int i=0; i<5; i++){
+			readers[i]=new Reader(pricesInfo);
+			threadsReader[i]=new Thread(readers[i]);
+		}
+		Writer writer=new Writer(pricesInfo);
+		Thread threadWriter=new Thread(writer);
+		for (int i=0; i<5; i++){
+			threadsReader[i].start();
+		}
+		threadWriter.start();
+	}
+	
+//	@Test
+	public void testLock3() {
+		PrintQueue1 printQueue=new PrintQueue1();
+		Thread thread[]=new Thread[10];
+		for (int i=0; i<10; i++){
+			thread[i]=new Thread(new Job1(printQueue),"Thread "+ i);
+		}
+		for (int i = 0; i < 10; i++) {
+			thread[i].start();
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Test
+	public void testLock4() {
+		FileMock mock = new FileMock(100, 10);
+		Buffer buffer = new Buffer(20);
+		Producer1 producer = new Producer1(mock, buffer);
+		Thread threadProducer = new Thread(producer, "Producer");
+		Consumer1 consumers[] = new Consumer1[3];
+		Thread threadConsumers[] = new Thread[3];
+		for (int i = 0; i < 3; i++) {
+			consumers[i] = new Consumer1(buffer);
+			threadConsumers[i] = new Thread(consumers[i], "Consumer " + i);
+		}
+
+		threadProducer.start();
+		for (int i = 0; i < 3; i++) {
+			threadConsumers[i].start();
+		}
+
+	}
+	
+	
+	//问题很大！？ GroboUtils出问题？ test3
+	public static void main(String[] args) {
+		PrintQueue1 printQueue=new PrintQueue1();
+		Thread thread[]=new Thread[10];
+		for (int i=0; i<10; i++){
+			thread[i]=new Thread(new Job1(printQueue),"Thread "+ i);
+		}
+		for (int i = 0; i < 10; i++) {
+			thread[i].start();
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
