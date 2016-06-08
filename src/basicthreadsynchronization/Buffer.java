@@ -20,22 +20,25 @@ public class Buffer {
 		space=lock.newCondition();
 		pendingLines=true;
 		}
+
 	public void insert(String line) {
 		lock.lock();
 		try {
-		while (buffer.size() == maxSize) {
-		space.await();
-		}
-		buffer.offer(line);
-		System.out.printf("%s: Inserted Line: %d\n", Thread.
-		currentThread().getName(),buffer.size());
-		lines.signalAll();
+			//必须用while等待
+			//当一个线程在condition条件上await()时候，将自动释放锁的控制。
+			while (buffer.size() == maxSize) {
+				space.await();
+			}
+			buffer.offer(line);
+			System.out.printf("%s: Inserted Line: %d\n", Thread.currentThread()
+					.getName(), buffer.size());
+			lines.signalAll();
 		} catch (InterruptedException e) {
-		e.printStackTrace();
+			e.printStackTrace();
 		} finally {
-		lock.unlock();
+			lock.unlock();
 		}
-		}
+	}
 	public String get() {
 		String line=null;
 		lock.lock();

@@ -1,5 +1,6 @@
 package basicthreadsynchronization;
 
+
 public class Producer1 implements Runnable{
 	private FileMock mock;
 	private Buffer buffer;

@@ -2,6 +2,7 @@ package basicthreadsynchronization;
 
 import org.junit.Test;
 
+
 public class RTest {
 
 //	@Test
@@ -116,11 +117,10 @@ public class RTest {
 		for (int i = 0; i < 3; i++) {
 			threadConsumers[i].start();
 		}
-
 	}
 	
-	
 	//问题很大！？ GroboUtils出问题？ test3
+	//GroboUtiles不是这样测试的
 	public static void main(String[] args) {
 		PrintQueue1 printQueue=new PrintQueue1();
 		Thread thread[]=new Thread[10];
